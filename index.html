@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>deck.gl Example</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href='https://unpkg.com/maplibre-gl@3.6.0/dist/maplibre-gl.css' rel='stylesheet' />
+  <link href='./index-style.css' rel='stylesheet' />
+</head>
+
+<body>
+  <!-- 新增控件容器 -->
+  <div class="controls-container">
+    <div class="controls-group">
+      <h2 class="controls-title">二维成矿预测系统</h2>
+
+      <!-- 矿床类型选择 -->
+      <div class="radio-group">
+        <span class="radio-label">矿床类型:</span>
+        <div class="radio-options">
+          <label class="radio-item">
+            <input type="radio" name="deposit-type" value="MVT" checked>
+            <span class="custom-radio"></span>
+            MVT型矿床
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="deposit-type" value="CD">
+            <span class="custom-radio"></span>
+            CD型矿床
+          </label>
+        </div>
+      </div>
+
+      <input type="file" id="file-input" accept=".csv,.geojson" />
+      <label for="file-input" class="upload-btn">上传文件</label>
+      <div class="file-name" id="file-name">未上传文件</div>
+      <button class="calculate-btn">开始计算</button>
+    </div>
+  </div>
+
+  <div id="app"></div>
+</body>
+<script type="module">
+  import { renderToDOM } from './app.tsx';
+  renderToDOM(document.getElementById('app'));
+
+  // 新增文件选择交互
+  const fileInput = document.getElementById('file-input');
+  const fileName = document.getElementById('file-name');
+
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    fileName.textContent = file ? file.name : '未选择文件';
+  });
+</script>
+
+</html>
