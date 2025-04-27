@@ -1,136 +1,81 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="zh-CN">
 
 <head>
-  <meta charset="utf-8">
-  <title>deck.gl Example</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href='https://unpkg.com/maplibre-gl@3.6.0/dist/maplibre-gl.css' rel='stylesheet' />
-  <link href='./index-style.css' rel='stylesheet' />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户登录与注册</title>
+    <link href='./index-style.css' rel='stylesheet' />
+    <style>
+        /* 你可以放到 CSS 文件中 */
+        .form-message {
+            color: red;
+            margin-top: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .form-message.success {
+            color: green;
+        }
+    </style>
 </head>
 
 <body>
-  <!-- 新增控件容器 -->
-  <div class="controls-container">
-    <div class="controls-group">
-      <h2 class="controls-title">二维成矿预测系统</h2>
+    <div class="container">
+        <div class="form-container">
+            <!-- 登录表单 -->
+            <div class="form-section active" id="login">
+                <h2>欢迎登录矿产资源预测系统</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <div class="input-icon">
+                            <i class="fas fa-envelope"></i>
+                            <input type="username" class="form-control" placeholder="用户名" required>
+                        </div>
+                        <div class="error-message">请输入有效的用户名</div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" class="form-control" placeholder="密码" required>
+                        </div>
+                        <div class="error-message">请输入密码</div>
+                    </div>
+                    <div class="form-message" id="loginMessage"></div>
+                    <button type="submit" class="btn">立即登录</button>
+                </form>
+            </div>
 
-      <!-- 矿床类型选择 -->
-      <div class="radio-group">
-        <span class="radio-label">矿床类型:</span>
-        <div class="radio-options">
-          <label class="radio-item">
-            <input type="radio" name="deposit-type" value="MVT" checked>
-            <span class="custom-radio"></span>
-            MVT型矿床
-          </label>
-          <label class="radio-item">
-            <input type="radio" name="deposit-type" value="CD">
-            <span class="custom-radio"></span>
-            CD型矿床
-          </label>
+            <!-- 注册表单 -->
+            <div class="form-section" id="register">
+                <h2>新用户注册</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <div class="input-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" class="form-control" placeholder="请输入用户名" required>
+                        </div>
+                        <div class="error-message">请输入用户名</div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" class="form-control" placeholder="请设置密码（至少六位）" required>
+                        </div>
+                        <div class="error-message">请输入密码（至少6位）</div>
+                    </div>
+                    <div class="form-message" id="registerMessage"></div>
+                    <button type="submit" class="btn">立即注册</button>
+                </form>
+            </div>
+
+            <div class="toggle-form">
+                <span id="toggleText">还没有账号？</span>
+                <button class="toggle-btn" onclick="toggleForm()">立即注册</button>
+            </div>
         </div>
-      </div>
-
-      <!-- 文件上传 -->
-      <input type="file" id="file-input" accept=".csv" />
-      <label for="file-input" class="upload-btn">上传文件</label>
-      <div class="file-name" id="file-name">未上传文件</div>
-      <button class="calculate-btn" id="upload-btn" disabled>开始计算</button>
     </div>
-  </div>
-
-  <div id="app"></div>
-
-  <script type="module">
-    import { renderToDOM } from './app.tsx';
-    renderToDOM(document.getElementById('app'));
-
-    const fileInput = document.getElementById('file-input');
-    const fileNameDisplay = document.getElementById('file-name');
-    const calculateButton = document.getElementById('upload-btn');
-
-    // 监听文件选择
-    fileInput.addEventListener('change', handleFileSelect);
-
-    function handleFileSelect(event) {
-      const file = event.target.files[0];
-      const depositType = getSelectedDepositType()
-
-      if (file) {
-        // 显示文件名
-        fileNameDisplay.textContent = `已选择文件: ${file.name}`;
-
-        // 解析CSV文件
-        Papa.parse(file, {
-          complete: function (results) {
-            console.log("Parsed Results:", results);
-            // 上传后显示解析的结果（根据需要进行处理）
-            calculateButton.disabled = false; // 启用计算按钮
-          },
-          error: function (error) {
-            console.error("Error parsing file:", error);
-            calculateButton.disabled = true; // 禁用计算按钮
-          }
-        });
-
-        // 立即上传文件
-        uploadFileToServer(file, depositType);
-      }
-    }
-
-    // 上传文件到后端
-    function uploadFileToServer(file, depositType) {
-      console.log(depositType);
-      
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('depositType', depositType)
-
-      fetch('http://localhost:5000/upload', {
-        method: 'POST',
-        body: formData
-      })
-        .then(response => response.json())
-        .then(data => {
-          console.log('File uploaded successfully:', data);
-        })
-        .catch(error => {
-          console.error('Error uploading file:', error);
-        });
-    }
-
-    // 点击“开始计算”按钮时，调用后端服务进行计算
-    calculateButton.addEventListener('click', () => {
-      if (uploadedFilePath) {
-        // 调用后端计算服务
-        fetch('http://localhost:5000/predict', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ filePath: uploadedFilePath, depositType: getSelectedDepositType() })
-        })
-          .then(response => response.json())
-          .then(data => {
-            console.log('Calculation results:', data);
-            // 这里可以处理计算后的结果
-          })
-          .catch(error => {
-            console.error('Error performing calculation:', error);
-          });
-      } else {
-        alert('请先上传文件');
-      }
-    });
-
-    // 获取选中的矿床类型
-    function getSelectedDepositType() {
-      const selectedDepositType = document.querySelector('input[name="deposit-type"]:checked').value;
-      return selectedDepositType;
-    }
-  </script>
 </body>
+<script src="./src/js/index.js"></script>
 
 </html>
